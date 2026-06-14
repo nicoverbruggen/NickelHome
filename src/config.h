@@ -12,9 +12,9 @@ typedef struct hm_config_t hm_config_t;
 
 // hm_config_parse reads and parses HM_CONFIG_DIR "/config". Each non-empty,
 // non-comment line is of the form `key:val`. If the config file does not exist,
-// an empty config is returned (this is not an error). Malformed lines are logged
-// and skipped. The returned config must be freed with hm_config_free. This never
-// returns NULL.
+// it is seeded by copying the bundled template at HM_CONFIG_DIR "/default" (with
+// every option disabled) and then parsed. Malformed lines are logged and skipped.
+// The returned config must be freed with hm_config_free. This never returns NULL.
 hm_config_t *hm_config_parse(void);
 
 // hm_config_get returns the value for the first declaration of key, or NULL if

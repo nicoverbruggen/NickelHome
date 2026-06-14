@@ -1,0 +1,13 @@
+# NickelHome configuration file
+
+# The recommendation column next to your current read.
+hide_home_row1col2_enabled:0
+
+# The content next to "My Books".
+hide_home_row2col2_enabled:0
+
+# The entire second row, including "My Books" and the content next to it.
+hide_home_row2_enabled:0
+
+# The entire third row, which usually displays notices and CTAs.
+hide_home_row3_enabled:0

@@ -18,12 +18,12 @@ NickelHome hides home-screen widgets by their internal Qt object name. The hooks
 are scoped within `mainContainer` so other views that reuse the same leaf object
 names aren't affected.
 
-| Config option                | Hides                                                                 |
-|------------------------------|----------------------------------------------------------------------|
-| `hide_home_row1col2_enabled` | the recommendations column in the top-right, next to your current book |
-| `hide_home_row2col2_enabled` | the `row2col2` quick-tour card (visual-only hide; keeps layout space) |
-| `hide_home_row2_enabled`     | the whole `row2` section, including "My Books"                        |
-| `hide_home_row3_enabled`     | the footer row below "My Books" (Kobo Store, Pocket, etc.)            |
+| Config option                | Hides                                                                      |
+|------------------------------|---------------------------------------------------------------------------|
+| `hide_home_row1col2_enabled` | The recommendation column next to your current read.                      |
+| `hide_home_row2col2_enabled` | The content next to "My Books".                                           |
+| `hide_home_row2_enabled`     | The entire second row, including "My Books" and the content next to it.   |
+| `hide_home_row3_enabled`     | The entire third row, which usually displays notices and CTAs.            |
 
 This requires firmware 4.23.15505+ (the version that introduced the current home
 screen layout). If a widget doesn't exist on your firmware, it's silently
@@ -31,18 +31,30 @@ skipped and a warning is written to syslog (`logread`).
 
 ## Configuration
 
-Create a file at `KOBOeReader/.adds/nickelhome/config`. Each line is `key:val`,
-with `#` for comments. A reboot is required for changes to take effect.
+NickelHome installs a default template to `KOBOeReader/.adds/nickelhome/default`
+(refreshed on every update). On first boot, if no config exists yet, it copies
+that template to `KOBOeReader/.adds/nickelhome/config` with every option disabled:
 
 ```
-# hide home-screen clutter (1 = hide, 0 = leave)
-hide_home_row1col2_enabled:1
-hide_home_row2col2_enabled:1
-hide_home_row3_enabled:1
+# NickelHome configuration file
+
+# The recommendation column next to your current read.
+hide_home_row1col2_enabled:0
+
+# The content next to "My Books".
+hide_home_row2col2_enabled:0
+
+# The entire second row, including "My Books" and the content next to it.
+hide_home_row2_enabled:0
+
+# The entire third row, which usually displays notices and CTAs.
+hide_home_row3_enabled:0
 ```
 
-If an option is declared more than once, the first declaration wins. The full
-documentation is installed to `.adds/nickelhome/doc`.
+Set an option to `1` to hide it. Each line is `key:val`, with `#` for comments;
+spaces around fields are ignored, and if an option is declared more than once,
+the first declaration wins. A reboot is required for changes to take effect. The
+full documentation is installed to `.adds/nickelhome/doc`.
 
 ## Installation
 
