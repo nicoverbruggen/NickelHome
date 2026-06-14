@@ -48,6 +48,11 @@
 #   hide_home_row2_enabled:0
 #   hide_home_row3_enabled:1
 #
-# To uninstall NickelHome, create a new (empty) file named `uninstall` in
-# KOBOeReader/.adds/nickelhome/, then reboot. You can also trigger the failsafe
-# mechanism by immediately powering off the Kobo after it starts booting.
+# To uninstall NickelHome, delete the entire KOBOeReader/.adds/nickelhome/
+# folder, then reboot. NickelHome treats the missing configuration folder as an
+# uninstall request and removes its installed library on the next startup.
+#
+# You can also create a new (empty) file named `uninstall` in
+# KOBOeReader/.adds/nickelhome/, then reboot. As a last resort, you can trigger
+# the failsafe mechanism by immediately powering off the Kobo after it starts
+# booting.

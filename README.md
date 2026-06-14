@@ -61,7 +61,9 @@ Download `KoboRoot.tgz` from the build artifacts, copy it into the `.kobo` folde
 
 ## Uninstalling
 
-Create an empty file named `uninstall` in `.adds/nickelhome/`, then reboot. As a last resort you can trigger the failsafe mechanism by immediately powering off the Kobo right after it starts booting. (This is also an additional safeguard to prevent NickelHome from being the source of a boot loop.)
+Delete the entire `.adds/nickelhome/` folder, then reboot. NickelHome treats the missing configuration folder as an uninstall request and removes its installed library on the next startup.
+
+You can also create an empty file named `uninstall` in `.adds/nickelhome/`, then reboot. As a last resort you can trigger the failsafe mechanism by immediately powering off the Kobo right after it starts booting. This is also an additional safeguard to prevent NickelHome from being the source of a boot loop.
 
 ## Compiling
 

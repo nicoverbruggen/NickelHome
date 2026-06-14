@@ -1,5 +1,5 @@
-#ifndef HM_UTIL_H
-#define HM_UTIL_H
+#ifndef NHM_UTIL_H
+#define NHM_UTIL_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,8 +22,8 @@ __attribute__((unused)) static inline char *strtrim(char *s) {
     return a;
 }
 
-// HM_LOG writes a log message.
-#define HM_LOG(fmt, ...) nh_log(fmt " (%s:%d)", ##__VA_ARGS__, __FILE__, __LINE__)
+// NHM_LOG writes a log message.
+#define NHM_LOG(fmt, ...) nh_log(fmt " (%s:%d)", ##__VA_ARGS__, __FILE__, __LINE__)
 
 #ifdef __cplusplus
 }

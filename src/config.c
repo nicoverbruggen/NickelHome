@@ -9,22 +9,22 @@
 #include "config.h"
 #include "util.h"
 
-typedef struct hm_config_entry_t {
+typedef struct nhm_config_entry_t {
     char *key;
     char *val;
-    struct hm_config_entry_t *next;
-} hm_config_entry_t;
+    struct nhm_config_entry_t *next;
+} nhm_config_entry_t;
 
-struct hm_config_t {
-    hm_config_entry_t *head;
-    hm_config_entry_t *tail;
+struct nhm_config_t {
+    nhm_config_entry_t *head;
+    nhm_config_entry_t *tail;
 };
 
-// hm_config_append adds key/val to the config (taking ownership of copies).
-static void hm_config_append(hm_config_t *cfg, const char *key, const char *val) {
-    hm_config_entry_t *e = calloc(1, sizeof(hm_config_entry_t));
+// nhm_config_append adds key/val to the config (taking ownership of copies).
+static void nhm_config_append(nhm_config_t *cfg, const char *key, const char *val) {
+    nhm_config_entry_t *e = calloc(1, sizeof(nhm_config_entry_t));
     if (!e || !(e->key = strdup(key)) || !(e->val = strdup(val))) {
-        HM_LOG("warning: out of memory while parsing config, skipping '%s'", key);
+        NHM_LOG("warning: out of memory while parsing config, skipping '%s'", key);
         if (e) {
             free(e->key);
             free(e->val);
@@ -39,23 +39,23 @@ static void hm_config_append(hm_config_t *cfg, const char *key, const char *val)
     cfg->tail = e;
 }
 
-// hm_config_write_default seeds HM_CONFIG_DIR "/config" by copying the bundled
-// template at HM_CONFIG_DIR "/default" (installed from res/default), which holds
+// nhm_config_write_default seeds NHM_CONFIG_DIR "/config" by copying the bundled
+// template at NHM_CONFIG_DIR "/default" (installed from res/default), which holds
 // the default "minimal" configuration.
-static void hm_config_write_default(void) {
+static void nhm_config_write_default(void) {
     // the config dir normally exists (the doc/default files are installed there),
     // but create it defensively in case it was removed
-    mkdir(HM_CONFIG_DIR, 0755);
+    mkdir(NHM_CONFIG_DIR, 0755);
 
-    FILE *src = fopen(HM_CONFIG_DIR "/default", "r");
+    FILE *src = fopen(NHM_CONFIG_DIR "/default", "r");
     if (!src) {
-        HM_LOG("warning: no default config template at %s/default (%s); leaving config absent", HM_CONFIG_DIR_DISP, strerror(errno));
+        NHM_LOG("warning: no default config template at %s/default (%s); leaving config absent", NHM_CONFIG_DIR_DISP, strerror(errno));
         return;
     }
 
-    FILE *dst = fopen(HM_CONFIG_DIR "/config", "w");
+    FILE *dst = fopen(NHM_CONFIG_DIR "/config", "w");
     if (!dst) {
-        HM_LOG("warning: could not write default config to %s/config (%s)", HM_CONFIG_DIR_DISP, strerror(errno));
+        NHM_LOG("warning: could not write default config to %s/config (%s)", NHM_CONFIG_DIR_DISP, strerror(errno));
         fclose(src);
         return;
     }
@@ -64,29 +64,29 @@ static void hm_config_write_default(void) {
     size_t n;
     while ((n = fread(buf, 1, sizeof(buf), src)) > 0) {
         if (fwrite(buf, 1, n, dst) != n) {
-            HM_LOG("warning: could not fully write default config to %s/config", HM_CONFIG_DIR_DISP);
+            NHM_LOG("warning: could not fully write default config to %s/config", NHM_CONFIG_DIR_DISP);
             break;
         }
     }
 
     fclose(src);
     fclose(dst);
-    HM_LOG("wrote default config to %s/config from template", HM_CONFIG_DIR_DISP);
+    NHM_LOG("wrote default config to %s/config from template", NHM_CONFIG_DIR_DISP);
 }
 
-hm_config_t *hm_config_parse(void) {
-    hm_config_t *cfg = calloc(1, sizeof(hm_config_t));
+nhm_config_t *nhm_config_parse(void) {
+    nhm_config_t *cfg = calloc(1, sizeof(nhm_config_t));
     if (!cfg)
         return NULL;
 
-    FILE *f = fopen(HM_CONFIG_DIR "/config", "r");
+    FILE *f = fopen(NHM_CONFIG_DIR "/config", "r");
     if (!f && errno == ENOENT) {
-        HM_LOG("no config file at %s/config; writing a default one", HM_CONFIG_DIR_DISP);
-        hm_config_write_default();
-        f = fopen(HM_CONFIG_DIR "/config", "r");
+        NHM_LOG("no config file at %s/config; writing a default one", NHM_CONFIG_DIR_DISP);
+        nhm_config_write_default();
+        f = fopen(NHM_CONFIG_DIR "/config", "r");
     }
     if (!f) {
-        HM_LOG("could not open %s/config (%s); no home-screen tweaks will be applied", HM_CONFIG_DIR_DISP, strerror(errno));
+        NHM_LOG("could not open %s/config (%s); no home-screen tweaks will be applied", NHM_CONFIG_DIR_DISP, strerror(errno));
         return cfg;
     }
 
@@ -110,17 +110,17 @@ hm_config_t *hm_config_parse(void) {
         char *key = strsep(&cur, ":");
         key = strtrim(key);
         if (!key || !*key) {
-            HM_LOG("warning: %s/config: line %d: expected key, ignoring line", HM_CONFIG_DIR_DISP, lineno);
+            NHM_LOG("warning: %s/config: line %d: expected key, ignoring line", NHM_CONFIG_DIR_DISP, lineno);
             continue;
         }
         if (!cur) {
-            HM_LOG("warning: %s/config: line %d: expected ':' after key '%s', ignoring line", HM_CONFIG_DIR_DISP, lineno, key);
+            NHM_LOG("warning: %s/config: line %d: expected ':' after key '%s', ignoring line", NHM_CONFIG_DIR_DISP, lineno, key);
             continue;
         }
         char *val = strtrim(cur);
 
-        hm_config_append(cfg, key, val);
-        HM_LOG("config: %s = %s", key, val);
+        nhm_config_append(cfg, key, val);
+        NHM_LOG("config: %s = %s", key, val);
     }
 
     free(buf);
@@ -128,21 +128,21 @@ hm_config_t *hm_config_parse(void) {
     return cfg;
 }
 
-const char *hm_config_get(hm_config_t *cfg, const char *key) {
+const char *nhm_config_get(nhm_config_t *cfg, const char *key) {
     if (!cfg)
         return NULL;
-    for (hm_config_entry_t *e = cfg->head; e; e = e->next)
+    for (nhm_config_entry_t *e = cfg->head; e; e = e->next)
         if (!strcmp(e->key, key))
             return e->val;
     return NULL;
 }
 
-void hm_config_free(hm_config_t *cfg) {
+void nhm_config_free(nhm_config_t *cfg) {
     if (!cfg)
         return;
-    hm_config_entry_t *e = cfg->head;
+    nhm_config_entry_t *e = cfg->head;
     while (e) {
-        hm_config_entry_t *next = e->next;
+        nhm_config_entry_t *next = e->next;
         free(e->key);
         free(e->val);
         free(e);
@@ -151,9 +151,9 @@ void hm_config_free(hm_config_t *cfg) {
     free(cfg);
 }
 
-const char *hm_global_config_get(const char *key) {
-    static hm_config_t *global = NULL;
+const char *nhm_global_config_get(const char *key) {
+    static nhm_config_t *global = NULL;
     if (!global)
-        global = hm_config_parse();
-    return hm_config_get(global, key);
+        global = nhm_config_parse();
+    return nhm_config_get(global, key);
 }
