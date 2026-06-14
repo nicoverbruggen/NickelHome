@@ -1,0 +1,14 @@
+# make gitignore
+.kdev4/
+*.kdev4
+.kateconfig
+.vscode/
+.idea/
+.clangd/
+.cache/
+compile_commands.json
+/KoboRoot.tgz
+/src/libnickelhome.so
+/src/config.o
+/src/nickelhome.o
+test.syms

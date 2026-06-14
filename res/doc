@@ -1,0 +1,53 @@
+# NickelHome (libnickelhome.so)
+#
+# This mod tweaks the Kobo home screen by hiding specific widgets after the
+# home view is constructed. It is built on NickelHook and is a sibling of
+# NickelMenu (https://pgaskin.net/NickelMenu).
+#
+# It should work on firmware 4.23.15505+ (the version which introduced the
+# current home screen layout). It is safe to try on newer firmware: if a widget
+# is not found on the running firmware, it is silently skipped and a warning is
+# written to syslog (view it with `logread`). A failsafe mechanism automatically
+# uninstalls the mod as a last resort if Nickel fails to start.
+#
+# Configuration lives in a single file at:
+#
+#   KOBOeReader/.adds/nickelhome/config
+#
+# Each line is either blank, a comment (starting with #), or an option in the
+# form:
+#
+#   <key>:<val>
+#
+# Spaces around fields are ignored. If an option is declared more than once,
+# only the first declaration takes effect. A reboot is required for changes to
+# take effect.
+#
+# These options hide elements on the home screen by their internal widget name.
+# They are the runtime equivalent of the corresponding kobopatch patches.
+#
+#   <key>  one of:
+#            hide_home_row1col2_enabled - hides the recommendations column in the top-right
+#                                         of the home screen, next to the book you are
+#                                         currently reading (when fewer than 2 books are open)
+#            hide_home_row2col2_enabled - hides the `row2col2` quick tour card on the home
+#                                         screen; this is a visual-only hide which disables
+#                                         the widget and makes it transparent without collapsing
+#                                         its layout space so "My Books" doesn't break
+#            hide_home_row2_enabled     - hides both "My Books" and the quick tour card;
+#                                         your books should still be accessible via the
+#                                         appropriate navigation tab (unless also hidden)
+#            hide_home_row3_enabled     - hides the footer row below "My Books" on the home
+#                                         screen, which often advertises features like the
+#                                         Kobo Store, Pocket, and more
+#   <val>  0 or 1
+#
+# Example:
+#   hide_home_row1col2_enabled:1
+#   hide_home_row2col2_enabled:1
+#   hide_home_row2_enabled:0
+#   hide_home_row3_enabled:1
+#
+# To uninstall NickelHome, create a new (empty) file named `uninstall` in
+# KOBOeReader/.adds/nickelhome/, then reboot. You can also trigger the failsafe
+# mechanism by immediately powering off the Kobo after it starts booting.
