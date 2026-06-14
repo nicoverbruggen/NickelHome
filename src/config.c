@@ -40,8 +40,8 @@ static void hm_config_append(hm_config_t *cfg, const char *key, const char *val)
 }
 
 // hm_config_write_default seeds HM_CONFIG_DIR "/config" by copying the bundled
-// template at HM_CONFIG_DIR "/default" (installed from res/default). The template
-// has every option disabled, so the config is a no-op until the user edits it.
+// template at HM_CONFIG_DIR "/default" (installed from res/default), which holds
+// the default "minimal" configuration.
 static void hm_config_write_default(void) {
     // the config dir normally exists (the doc/default files are installed there),
     // but create it defensively in case it was removed
