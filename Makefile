@@ -13,7 +13,7 @@ strip:
 .PHONY: strip
 
 ifeq ($(NHM_CONFIG_DIR),)
-override NHM_CONFIG_DIR := /mnt/onboard/.adds/nickelhome
+override NHM_CONFIG_DIR := /mnt/onboard/.adds/nickel-home
 endif
 
 override CPPFLAGS += -DNHM_CONFIG_DIR='"$(NHM_CONFIG_DIR)"' -DNHM_CONFIG_DIR_DISP='"$(patsubst /mnt/onboard/%,KOBOeReader/%,$(NHM_CONFIG_DIR))"'

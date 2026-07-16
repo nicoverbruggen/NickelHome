@@ -4,6 +4,11 @@
 # This is the default configuration file, it is the default "minimal" configuration
 # that hides everything but your current read and the "My Books" widget.
 #
+# Master switch: set to 0 to leave the home screen untouched without uninstalling (default 1).
+# nhm_enabled:1
+#
+# Verbose logging to nickel-home.log in this folder, for troubleshooting (default 0).
+# nhm_log:0
 
 # The recommendation column next to your current read.
 hide_home_row1col2_enabled:1

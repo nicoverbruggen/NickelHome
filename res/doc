@@ -12,7 +12,7 @@
 #
 # Configuration lives in a single file at:
 #
-#   KOBOeReader/.adds/nickelhome/config
+#   KOBOeReader/.adds/nickel-home/config
 #
 # Each line is either blank, a comment (starting with #), or an option in the
 # form:
@@ -27,6 +27,10 @@
 # They are the runtime equivalent of the corresponding kobopatch patches.
 #
 #   <key>  one of:
+#            nhm_enabled                - master switch; set to 0 to leave the home screen
+#                                         untouched without uninstalling the mod (default 1)
+#            nhm_log                    - set to 1 to write verbose logs to nickel-home.log in
+#                                         this folder, for troubleshooting (default 0)
 #            hide_home_row1col2_enabled - hides the recommendations column in the top-right
 #                                         of the home screen, next to the book you are
 #                                         currently reading (when fewer than 2 books are open)
@@ -48,11 +52,15 @@
 #   hide_home_row2_enabled:0
 #   hide_home_row3_enabled:1
 #
-# To uninstall NickelHome, delete the entire KOBOeReader/.adds/nickelhome/
+# NickelHome writes a log to nickel-home.log in this folder. On a healthy boot it stays short:
+# the mod version, your firmware version, and which widgets it hid. Attach it to a bug report.
+# Set nhm_log:1 for more detail. The file is size-capped and rotates to nickel-home.log.old.
+#
+# To uninstall NickelHome, delete the entire KOBOeReader/.adds/nickel-home/
 # folder, then reboot. NickelHome treats the missing configuration folder as an
 # uninstall request and removes its installed library on the next startup.
 #
 # You can also create a new (empty) file named `uninstall` in
-# KOBOeReader/.adds/nickelhome/, then reboot. As a last resort, you can trigger
+# KOBOeReader/.adds/nickel-home/, then reboot. As a last resort, you can trigger
 # the failsafe mechanism by immediately powering off the Kobo after it starts
 # booting.

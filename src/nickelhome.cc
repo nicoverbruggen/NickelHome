@@ -4,7 +4,6 @@
 #include <QWidget>
 
 #include <cstddef>
-#include <cstring>
 
 #include <NickelHook.h>
 
@@ -16,6 +15,18 @@
 // object name) right after the view has been built.
 typedef QWidget HomePageView;
 void (*HomePageView_HomePageView)(HomePageView*, QWidget* parent);
+
+// Valid config keys. The parser (config.c) warns about anything not in this list; keep it in
+// sync with the documented settings in res/default and res/doc.
+extern "C" const char *const nhm_known_keys[] = {
+    "nhm_enabled",                 // master switch (0 leaves the home screen untouched)
+    "nhm_log",                     // verbose logging to the on-device log file
+    "hide_home_row1col2_enabled",
+    "hide_home_row2col2_enabled",
+    "hide_home_row2_enabled",
+    "hide_home_row3_enabled",
+    NULL,
+};
 
 static int nhm_init();
 
@@ -48,8 +59,21 @@ NickelHook(
 )
 
 static int nhm_init() {
-    // parse (and cache) the config now so any errors are logged at startup
+    // parse (and cache) the config now so any errors are logged at startup (this also publishes
+    // nhm_log_verbose, which gates NHM_DBG)
     nhm_global_config_get("");
+
+    // startup block (always logged): mod version, firmware version, effective config, and whether
+    // the home-screen hook resolved on this firmware
+    NHM_LOG("startup: NickelHome " NH_VERSION);
+    nhm_log_firmware();
+    NHM_LOG("startup: enabled=%d hide(row1col2/row2col2/row2/row3)=%d/%d/%d/%d verbose=%d hook=%p",
+        nhm_global_config_bool("nhm_enabled", true),
+        nhm_global_config_bool("hide_home_row1col2_enabled", false),
+        nhm_global_config_bool("hide_home_row2col2_enabled", false),
+        nhm_global_config_bool("hide_home_row2_enabled", false),
+        nhm_global_config_bool("hide_home_row3_enabled", false),
+        nhm_log_verbose, (void *)HomePageView_HomePageView);
 
     return 0;
 }
@@ -125,6 +149,11 @@ extern "C" __attribute__((visibility("default"))) void _nh_homepageview_hook(Hom
     NHM_LOG("HomePageView::HomePageView(%p, %p)", _this, parent);
     HomePageView_HomePageView(_this, parent);
 
+    if (!nhm_global_config_bool("nhm_enabled", true)) {
+        NHM_DBG("nhm_enabled=0; leaving the home screen untouched");
+        return;
+    }
+
     const struct {
         const char *config_key;
         const char *row_name;
@@ -138,8 +167,7 @@ extern "C" __attribute__((visibility("default"))) void _nh_homepageview_hook(Hom
     };
 
     for (size_t i = 0; i < sizeof(hide_rules) / sizeof(hide_rules[0]); i++) {
-        const char *val = nhm_global_config_get(hide_rules[i].config_key);
-        if (!val || strcmp(val, "1"))
+        if (!nhm_global_config_bool(hide_rules[i].config_key, false))
             continue;
 
         QWidget *w = nhm_find_home_widget(_this, hide_rules[i].row_name, hide_rules[i].widget_name);
