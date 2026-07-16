@@ -81,7 +81,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports need the log file; the issue
 
 NickelHome stands entirely on the shoulders of [Patrick Gaskin](https://github.com/pgaskin)'s work, both NickelHook and NickelMenu. Because it is derived from a PR I made for NickelMenu itself, it is licensed under the MIT License; see [LICENSE](./LICENSE).
 
-This mod was created by the author with the help of the following large language models:
-
-- Claude Opus 4.8
-- Claude Fable
+This mod was created by the author with the help of the following large language models: Claude Opus 4.8, Claude Fable, GPT 5.5, and some old-school manual work as well.
