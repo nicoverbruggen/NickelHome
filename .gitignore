@@ -8,6 +8,7 @@
 .cache/
 compile_commands.json
 /KoboRoot.tgz
+/tmp/
 /src/libnickelhome.so
 /src/config.o
 /src/nickelhome.o

@@ -1,0 +1,79 @@
+name: Bug report
+description: Report a problem with NickelHome
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. The log file is required: the mod logs its
+        version, your firmware version, your config, and whether the home-screen hook attached,
+        which is usually most of the diagnosis.
+
+  - type: input
+    id: device
+    attributes:
+      label: Kobo device
+      description: The exact model.
+      placeholder: e.g. Kobo Clara BW
+    validations:
+      required: true
+
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware version
+      description: "Settings > Device information > Software version."
+      placeholder: e.g. 4.45.23697
+    validations:
+      required: true
+
+  - type: input
+    id: modversion
+    attributes:
+      label: NickelHome version
+      description: The release you installed (or the commit if you built it yourself).
+      placeholder: e.g. v0.5
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. …
+        2. …
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Log file
+      description: >
+        Connect the Kobo over USB and attach
+        `KOBOeReader/.adds/nickel-home/nickel-home.log` (drag & drop it here, or paste its
+        contents). If a widget isn't hiding as expected, set `nhm_log:1` in
+        `KOBOeReader/.adds/nickel-home/config`, reboot, reproduce, and attach the log from that
+        boot.
+      render: text
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I rebooted the device after installing / changing the config.
+          required: true
+        - label: "`nhm_enabled` is not set to `0` in my config."
+          required: true
