@@ -16,6 +16,17 @@
 typedef QWidget HomePageView;
 void (*HomePageView_HomePageView)(HomePageView*, QWidget* parent);
 
+// The two right-hand home-screen slots (row1col2 and row2col2) are dynamic: nickel fills each
+// with the highest-priority available tile (collection, author, wishlist, related reads,
+// recommendations, or Top Picks / store content as the unconditional fallback) by calling
+// HomePageView::configureTopRight / configureMiddleRight. These also run when the home screen is
+// reconfigured later (e.g. after a store sync refreshes the Top Picks data), which is how a tile
+// can appear in a slot that was already hidden. When a slot is hidden via the config, we no-op
+// its configure call so late-arriving content can't repopulate or re-show it. HomePageWidgets is
+// an int-sized enum identifying the tile.
+void (*HomePageView_configureTopRight)(HomePageView *_this, int widget);
+void (*HomePageView_configureMiddleRight)(HomePageView *_this, int widget);
+
 // Valid config keys. The parser (config.c) warns about anything not in this list; keep it in
 // sync with the documented settings in res/default and res/doc.
 extern "C" const char *const nhm_known_keys[] = {
@@ -49,6 +60,25 @@ static struct nh_hook NickelHomeHook[] = {
         .optional = true,
     }, //libnickel 4.23.15505 * _ZN12HomePageViewC1EP7QWidget
 
+    // dynamic slot suppression for hidden slots (verified on 4.23.15505, 4.38.23697, 4.45.23697)
+    {
+        .sym      = "_ZN12HomePageView17configureTopRightE15HomePageWidgets",
+        .sym_new  = "_nh_configuretopright_hook",
+        .lib      = "libnickel.so.1.0.0",
+        .out      = nh_symoutptr(HomePageView_configureTopRight),
+        .desc     = "dynamic slot suppression (row1col2)",
+        .optional = true,
+    }, //libnickel 4.23.15505 * _ZN12HomePageView17configureTopRightE15HomePageWidgets
+
+    {
+        .sym      = "_ZN12HomePageView20configureMiddleRightE15HomePageWidgets",
+        .sym_new  = "_nh_configuremiddleright_hook",
+        .lib      = "libnickel.so.1.0.0",
+        .out      = nh_symoutptr(HomePageView_configureMiddleRight),
+        .desc     = "dynamic slot suppression (row2col2)",
+        .optional = true,
+    }, //libnickel 4.23.15505 * _ZN12HomePageView20configureMiddleRightE15HomePageWidgets
+
     {0},
 };
 
@@ -67,13 +97,15 @@ static int nhm_init() {
     // the home-screen hook resolved on this firmware
     NHM_LOG("startup: NickelHome " NH_VERSION);
     nhm_log_firmware();
-    NHM_LOG("startup: enabled=%d hide(row1col2/row2col2/row2/row3)=%d/%d/%d/%d verbose=%d hook=%p",
+    NHM_LOG("startup: enabled=%d hide(row1col2/row2col2/row2/row3)=%d/%d/%d/%d verbose=%d hook=%p slothooks=%p/%p",
         nhm_global_config_bool("nhm_enabled", true),
         nhm_global_config_bool("hide_home_row1col2_enabled", false),
         nhm_global_config_bool("hide_home_row2col2_enabled", false),
         nhm_global_config_bool("hide_home_row2_enabled", false),
         nhm_global_config_bool("hide_home_row3_enabled", false),
-        nhm_log_verbose, (void *)HomePageView_HomePageView);
+        nhm_log_verbose, (void *)HomePageView_HomePageView,
+        (void *)HomePageView_configureTopRight,
+        (void *)HomePageView_configureMiddleRight);
 
     return 0;
 }
@@ -143,6 +175,34 @@ static void nhm_hide_home_widget(QWidget *widget, bool keep_layout_space) {
     effect->setOpacity(0.0);
     widget->setEnabled(false);
     widget->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+}
+
+// nhm_slot_hidden reports whether the config hides the given dynamic slot, honouring the master
+// switch. row2col2 is also covered by hide_home_row2_enabled, which hides the whole row.
+static bool nhm_slot_hidden(const char *slot_key, const char *row_key) {
+    if (!nhm_global_config_bool("nhm_enabled", true))
+        return false;
+    if (nhm_global_config_bool(slot_key, false))
+        return true;
+    return row_key && nhm_global_config_bool(row_key, false);
+}
+
+extern "C" __attribute__((visibility("default"))) void _nh_configuretopright_hook(HomePageView *_this, int widget) {
+    if (nhm_slot_hidden("hide_home_row1col2_enabled", NULL)) {
+        NHM_DBG("skipping configureTopRight(%d): row1col2 is hidden", widget);
+        return;
+    }
+
+    HomePageView_configureTopRight(_this, widget);
+}
+
+extern "C" __attribute__((visibility("default"))) void _nh_configuremiddleright_hook(HomePageView *_this, int widget) {
+    if (nhm_slot_hidden("hide_home_row2col2_enabled", "hide_home_row2_enabled")) {
+        NHM_DBG("skipping configureMiddleRight(%d): row2col2 is hidden", widget);
+        return;
+    }
+
+    HomePageView_configureMiddleRight(_this, widget);
 }
 
 extern "C" __attribute__((visibility("default"))) void _nh_homepageview_hook(HomePageView *_this, QWidget *parent) {

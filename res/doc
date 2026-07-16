@@ -31,13 +31,20 @@
 #                                         untouched without uninstalling the mod (default 1)
 #            nhm_log                    - set to 1 to write verbose logs to nickel-home.log in
 #                                         this folder, for troubleshooting (default 0)
-#            hide_home_row1col2_enabled - hides the recommendations column in the top-right
-#                                         of the home screen, next to the book you are
-#                                         currently reading (when fewer than 2 books are open)
-#            hide_home_row2col2_enabled - hides the `row2col2` quick tour card on the home
-#                                         screen; this is a visual-only hide which disables
-#                                         the widget and makes it transparent without collapsing
-#                                         its layout space so "My Books" doesn't break
+#            hide_home_row1col2_enabled - hides the dynamic slot in the top-right of the home
+#                                         screen, next to the book you are currently reading
+#                                         (when fewer than 2 books are open). Kobo fills it with
+#                                         a collection, author, wishlist, related reads,
+#                                         recommendations, or Top Picks / store tile ("Top 50",
+#                                         "Coming soon to audiobooks", ...); hiding the slot
+#                                         also stops it from being filled, so content arriving
+#                                         later (e.g. after a store sync) can't re-show it
+#            hide_home_row2col2_enabled - hides the `row2col2` dynamic slot next to "My Books"
+#                                         (same kind of content as above, plus the quick tour
+#                                         card) and stops it from being filled; this is a
+#                                         visual-only hide which disables the widget and makes
+#                                         it transparent without collapsing its layout space so
+#                                         "My Books" doesn't break
 #            hide_home_row2_enabled     - hides both "My Books" and the quick tour card;
 #                                         your books should still be accessible via the
 #                                         appropriate navigation tab (unless also hidden)

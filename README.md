@@ -12,10 +12,12 @@ NickelHome hides home-screen widgets by their internal name. The lookups are sco
 
 | Config option                | Hides                                                                      |
 |------------------------------|---------------------------------------------------------------------------|
-| `hide_home_row1col2_enabled` | The recommendation column next to your current read.                      |
-| `hide_home_row2col2_enabled` | The content next to "My Books".                                           |
+| `hide_home_row1col2_enabled` | The dynamic slot next to your current read.                                |
+| `hide_home_row2col2_enabled` | The dynamic slot next to "My Books".                                       |
 | `hide_home_row2_enabled`     | The entire second row, including "My Books" and the content next to it.   |
 | `hide_home_row3_enabled`     | The entire third row, which usually displays notices and CTAs.            |
+
+The two "dynamic slots" are the spots Kobo fills with a collection, author, wishlist, related reads, recommendations, or Top Picks / store tile ("Top 50", "Coming soon to audiobooks", ...). Hiding a slot also stops it from being filled in the first place, so content arriving late (e.g. a Top Picks tile refreshed by a store sync) can't pop back up in a slot you've hidden.
 
 ## Compatibility
 
