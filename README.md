@@ -4,7 +4,10 @@
 
 **NickelHome** is a small mod for Kobo eReaders that hooks into the home screen and hides specific built-in widgets (certain columns and rows on the home screen) based on a simple configuration file.
 
-It is built on [NickelHook](https://github.com/pgaskin/NickelHook) and is a standalone sibling of [NickelMenu](https://pgaskin.net/NickelMenu). The home-screen hiding feature started as an [experimental addition](https://github.com/pgaskin/NickelMenu/pull/227) to my NickelMenu fork. Because it may not get merged into NickelMenu (out of scope), I've decided to also offer it as a standalone option here. Depending on what happens with NickelMenu, either [my fork](https://github.com/nicoverbruggen/NickelMenu) or this package may eventually be deprecated.
+It is built on [NickelHook](https://github.com/pgaskin/NickelHook) and is a standalone sibling of [NickelMenu](https://pgaskin.net/NickelMenu). The home-screen hiding feature started in my NickelMenu fork and is offered here as a standalone option.
+
+> [!IMPORTANT]
+> NickelHome needs the **standard** NickelMenu, not a fork. If you set your Kobo up with my **[NickelMenu fork](https://github.com/nicoverbruggen/NickelMenu)** (or with an older **KoboPatch Web UI** that bundled it), that fork also hooks the home screen, and the conflict stops NickelHome's hiding from working (its hooks silently never fire). Install the standard [NickelMenu](https://pgaskin.net/NickelMenu) over the fork first (its plugin has the same filename, so it replaces it), reboot, and NickelHome will then work. This does **not** apply to the current KoboPatch Web UI, which installs standard NickelMenu together with NickelHome.
 
 ## What it does
 
