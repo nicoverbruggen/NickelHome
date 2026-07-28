@@ -63,11 +63,12 @@
 # the mod version, your firmware version, and which widgets it hid. Attach it to a bug report.
 # Set nhm_log:1 for more detail. The file is size-capped and rotates to nickel-home.log.old.
 #
-# To uninstall NickelHome, delete the entire KOBOeReader/.adds/nickel-home/
-# folder, then reboot. NickelHome treats the missing configuration folder as an
-# uninstall request and removes its installed library on the next startup.
+# To uninstall NickelHome, delete the `uninstall` file in
+# KOBOeReader/.adds/nickel-home/, then reboot. NickelHome treats that file going
+# missing as an uninstall request: on the next startup it removes its installed
+# library and the whole KOBOeReader/.adds/nickel-home/ folder.
 #
-# You can also create a new (empty) file named `uninstall` in
-# KOBOeReader/.adds/nickel-home/, then reboot. As a last resort, you can trigger
-# the failsafe mechanism by immediately powering off the Kobo after it starts
-# booting.
+# You can also create a new (empty) file named `uninstall-now` in the same
+# folder, then reboot, which does the same thing. Deleting the entire folder
+# works too. As a last resort, you can trigger the failsafe mechanism by
+# immediately powering off the Kobo after it starts booting.

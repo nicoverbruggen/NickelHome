@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include <cstddef>
+#include <unistd.h>
 
 #include <NickelHook.h>
 
@@ -41,11 +42,31 @@ extern "C" const char *const nhm_known_keys[] = {
 
 static int nhm_init();
 
+// nhm_del removes a mod-owned file, treating "already gone" as success.
+static bool nhm_del(const char *p) { return access(p, F_OK) != 0 ? true : nh_delete_file(p); }
+
+// nhm_uninstall removes every file the mod installs or writes, then the config directory itself.
+// Only mod-owned paths are touched; nothing of Kobo's is removed. Runs when the uninstall flag is
+// created or the uninstall sentinel is deleted, before any hook is installed.
+static bool nhm_uninstall() {
+    NHM_LOG("uninstall: removing NickelHome files");
+    bool ok = true;
+    ok = nhm_del(NHM_CONFIG_DIR "/doc") && ok;
+    ok = nhm_del(NHM_CONFIG_DIR "/default") && ok;
+    ok = nhm_del(NHM_CONFIG_DIR "/config") && ok;
+    ok = nhm_del(NHM_CONFIG_DIR "/nickel-home.log") && ok;
+    ok = nhm_del(NHM_CONFIG_DIR "/nickel-home.log.old") && ok;
+    ok = nhm_del(NHM_CONFIG_DIR "/uninstall") && ok;
+    ok = nhm_del(NHM_CONFIG_DIR "/uninstall-now") && ok;
+    if (access(NHM_CONFIG_DIR, F_OK) == 0) ok = nh_delete_dir(NHM_CONFIG_DIR) && ok;
+    return ok;
+}
+
 static struct nh_info NickelHome = (struct nh_info){
     .name            = "NickelHome",
     .desc            = "Kobo home-screen tweaks for Nickel.",
-    .uninstall_flag  = NHM_CONFIG_DIR "/uninstall",
-    .uninstall_xflag = NHM_CONFIG_DIR,
+    .uninstall_flag  = NHM_CONFIG_DIR "/uninstall-now",
+    .uninstall_xflag = NHM_CONFIG_DIR "/uninstall",
     .failsafe_delay  = 3,
 };
 
@@ -83,9 +104,12 @@ static struct nh_hook NickelHomeHook[] = {
 };
 
 NickelHook(
-    .init  = &nhm_init,
-    .info  = &NickelHome,
-    .hook  = NickelHomeHook,
+    .init      = &nhm_init,
+    .info      = &NickelHome,
+    .hook      = NickelHomeHook,
+    .dlsym     = NULL,          // no dlsym table; spelled out because g++ rejects skipping a
+                                // member when a later one is set
+    .uninstall = &nhm_uninstall,
 )
 
 static int nhm_init() {
@@ -206,7 +230,7 @@ extern "C" __attribute__((visibility("default"))) void _nh_configuremiddleright_
 }
 
 extern "C" __attribute__((visibility("default"))) void _nh_homepageview_hook(HomePageView *_this, QWidget *parent) {
-    NHM_LOG("HomePageView::HomePageView(%p, %p)", _this, parent);
+    NHM_DBG("HomePageView::HomePageView(%p, %p)", _this, parent);
     HomePageView_HomePageView(_this, parent);
 
     if (!nhm_global_config_bool("nhm_enabled", true)) {

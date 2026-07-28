@@ -74,7 +74,7 @@ Needs podman or Docker; see [CONTRIBUTING.md](CONTRIBUTING.md) for the full inst
 
 ## Uninstalling
 
-Delete the entire `.adds/nickel-home/` folder, then reboot. NickelHome treats the missing configuration folder as an uninstall request and removes its installed library on the next startup. You can also create an empty file named `uninstall` in `.adds/nickel-home/`, then reboot.
+Delete the `uninstall` file in `.adds/nickel-home/`, then reboot. NickelHome treats that file going missing as an uninstall request: on the next startup it removes its installed library and the whole `.adds/nickel-home/` folder. You can also create an empty file named `uninstall-now` in the same folder, or delete the entire folder, then reboot.
 
 ## Contributing
 

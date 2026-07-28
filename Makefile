@@ -5,7 +5,7 @@ override LIBRARY  := src/libnickelhome.so
 override SOURCES  += src/config.c src/nickelhome.cc
 override CFLAGS   += -Wall -Wextra -Werror -fvisibility=hidden
 override CXXFLAGS += -Wall -Wextra -Werror -Wno-missing-field-initializers -isystemlib -fvisibility=hidden -fvisibility-inlines-hidden
-override KOBOROOT += res/doc:$(NHM_CONFIG_DIR)/doc res/default:$(NHM_CONFIG_DIR)/default
+override KOBOROOT += res/doc:$(NHM_CONFIG_DIR)/doc res/default:$(NHM_CONFIG_DIR)/default res/uninstall:$(NHM_CONFIG_DIR)/uninstall
 
 override SKIPCONFIGURE += strip
 strip:
