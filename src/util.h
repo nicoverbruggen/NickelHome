@@ -56,13 +56,14 @@ __attribute__((unused)) static inline void nhm_log_file_line(const char *file, i
 
     nh_log("%s (%s:%d)", msg, file, line);
 
-    mkdir(NHM_CONFIG_DIR, 0755);
-
-    // Rotate once per process, on the first file write of the boot. A benign race if two threads
-    // hit this first (at most a redundant rename); the flag keeps it to one check per process.
-    static bool nhm_log_rotate_checked = false;
-    if (!nhm_log_rotate_checked) {
-        nhm_log_rotate_checked = true;
+    // First file write of the boot: create the directory if it's missing, and rotate the log if
+    // it grew past the cap. A benign race if two threads hit this first (at most a redundant
+    // mkdir or rename); the flag keeps it to one check per process. Doing the mkdir here rather
+    // than on every line also means a log call after nhm_uninstall can't recreate the folder.
+    static bool nhm_log_setup_done = false;
+    if (!nhm_log_setup_done) {
+        nhm_log_setup_done = true;
+        mkdir(NHM_CONFIG_DIR, 0755);
         struct stat st;
         if (stat(NHM_CONFIG_DIR "/nickel-home.log", &st) == 0 && st.st_size > NHM_LOG_MAX_BYTES)
             rename(NHM_CONFIG_DIR "/nickel-home.log", NHM_CONFIG_DIR "/nickel-home.log.old");

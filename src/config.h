@@ -24,7 +24,9 @@ typedef struct nhm_config_t nhm_config_t;
 // non-comment line is of the form `key:val`. If the config file does not exist,
 // it is seeded (atomically) by copying the bundled template at NHM_CONFIG_DIR "/default" (the
 // default "minimal" configuration) and then parsed. Malformed and unknown keys are logged.
-// The returned config must be freed with nhm_config_free. This never returns NULL.
+// The returned config must be freed with nhm_config_free. Returns NULL only if the config
+// struct itself could not be allocated; the getters below treat a NULL config as an empty one,
+// so every key falls back to its default.
 nhm_config_t *nhm_config_parse(void);
 
 // nhm_config_get returns the value for the first declaration of key, or NULL if

@@ -236,6 +236,9 @@ void nhm_config_free(nhm_config_t *cfg) {
     free(cfg);
 }
 
+// No locking on the lazy init: every caller is on Nickel's GUI thread (the HomePageView
+// constructor and the two configure hooks), so the first-use parse can't race. Priming this
+// from nhm_init is about log ordering, not safety: it puts config errors in the startup block.
 static nhm_config_t *nhm_global_config(void) {
     static nhm_config_t *global = NULL;
     if (!global)
