@@ -14,7 +14,7 @@ cd NickelHome
 
 This produces `KoboRoot.tgz` at the repo root. `./build.sh <targets>` passes other make targets through; `NICKELTC_IMAGE` overrides the toolchain image. You can also build straight on the host with `make CROSS_COMPILE=/path/to/nickeltc/bin/arm-nickel-linux-gnueabihf- all koboroot`.
 
-Version stamping: NickelHook.mk bakes `git describe --tags --always --dirty` into `NH_VERSION`: the git tag when you're on one, otherwise a commit hash. `build.sh` excludes `.git`, so local container builds are unstamped (`dev`); CI (checkout with `fetch-depth: 0`) produces the authoritative stamped artifacts.
+Version stamping: NickelHook.mk bakes `git describe --tags --always --dirty` into `NH_VERSION`: the git tag when you're on one, otherwise a commit hash. `build.sh` keeps `.git` out of what it sends the container, so it reads the version on the host and passes it to make. A local build is stamped like a CI one, with `-dirty` when the tree has uncommitted changes. Outside a checkout there is no version and the logger falls back to `dev`. CI (checkout with `fetch-depth: 0`) produces the authoritative artifacts.
 
 ## Testing on a device
 
@@ -34,10 +34,10 @@ The hooked `libnickel` symbol (`HomePageView::HomePageView`) carries a `//libnic
 
 ## Pull requests
 
-- Add a `## Unreleased` entry to `CHANGELOG.md` for any user-visible change (release notes are generated from it).
+- Add an entry to `CHANGELOG.md` under the heading for the version it will ship in, for any user-visible change (release notes are generated from it).
 - Annotate any new `libnickel` symbol with `//libnickel …`; CI verifies it.
 - State the device + firmware you tested on, and attach the relevant `nickel-home.log` excerpt (the PR template asks for both).
 
 ## Releases (maintainers)
 
-Rename `## Unreleased` in `CHANGELOG.md` to the new `## vX.Y`, tag the commit `vX.Y`, and push the tag. CI builds, extracts that section as the release notes, attaches `KoboRoot.tgz`, and fails if the CHANGELOG section is missing.
+Check that `CHANGELOG.md` has a complete `## vX.Y` section matching the tag name, tag the commit `vX.Y`, and push the tag. CI builds, extracts that section as the release notes, attaches `KoboRoot.tgz`, and fails if the CHANGELOG section is missing.
