@@ -30,9 +30,9 @@ Use the package that matches your firmware:
 | Firmware | Qt | Package |
 | --- | --- | --- |
 | Kobo 4.23.15505 or newer on the 4.x line | Qt5 | `KoboRoot.tgz` |
-| Kobo 5.18 and 6.x, Tolino 5.18 | Qt6 | `Kobo.tgz` |
+| Kobo 6.0 _and_ Tolino 5.18 | Qt6 | `Kobo.tgz` |
 
-Qt6 support is experimental. These packages contain different binaries and archive paths; do not rename them. Missing widgets are left unchanged. A missing required Home hook prevents the Qt6 plugin from loading.
+**Qt6 support is experimental.** These packages contain different binaries and archive paths; do not rename them. Missing widgets are left unchanged. A missing required Home hook prevents the Qt6 plugin from loading.
 
 ## Is it safe?
 
@@ -66,11 +66,7 @@ To change what's hidden, edit `config`: set an option to `0` to keep that elemen
 
 Each line is `key:val`, with `#` for comments. Spaces around fields are ignored, and if an option is declared more than once, the first declaration wins. The full documentation is installed to `.adds/nickel-home/doc`. **A reboot is required for changes to take effect.**
 
-There is no interactive Settings page in either package. Edit the config file and reboot. Settings integration with NickelModManager is planned separately.
-
-On Qt6, `hide_home_row2col1_enabled:1` hides My Books independently. `tolino_home_books_enabled:1` enables Kobo's current-read and My Books layout on Tolino; it is off by default. On Kobo, the Qt6 reading prompt opens My Books while NickelHome is enabled.
-
-Qt6 keeps an initialization receipt at `.adds/.nickel-home.initialized`. Leave it in place while the mod is installed. Deleting the keep-installed `uninstall` file still requests removal; an ordinary reboot does not recreate it.
+There is no interactive Settings page in either package yet. To make changes, edit the config file and reboot. A settings integration with NickelModManager is planned separately.
 
 ## Reporting a problem
 
@@ -98,4 +94,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports need the log file; the issue
 
 NickelHome stands entirely on the shoulders of [Patrick Gaskin](https://github.com/pgaskin)'s work, both NickelHook and NickelMenu. Because it is derived from a PR I made for NickelMenu itself, it is licensed under the MIT License; see [LICENSE](./LICENSE).
 
-This mod was created by the author with the help of the following large language models: Claude Opus 4.8, Claude Fable, GPT 5.5, and some old-school manual work as well.
+This mod was created by the author with the help of the following large language models: Claude Opus 5.5, Claude Fable 5, GPT-6 Astra, and some old-school manual work as well.
