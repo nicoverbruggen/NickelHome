@@ -17,6 +17,7 @@
 
 #include "config.h"
 #include "util.h"
+#include "mybooks.h"
 #include "findbooks.h"
 
 // HomePageView is the widget tree shown on the Kobo home screen. We hook its
@@ -76,6 +77,15 @@ static struct nh_info NickelHome = (struct nh_info){
 };
 
 static struct nh_hook NickelHomeHook[] = {
+    {
+        .sym      = "_ZN17MyBooksHomeWidget9configureER5QListI6VolumeEi",
+        .sym_new  = "_nh_my_books_configure_hook",
+        .lib      = "libnickel.so.1.0.0",
+        .out      = nh_symoutptr(nhm_my_books_configure),
+        .desc     = "keep My Books with fewer than three books",
+        .optional = true,
+    }, //libnickel 5.18.270971 * _ZN17MyBooksHomeWidget9configureER5QListI6VolumeEi
+
     // home page widget hiding (15505+)
     {
         .sym      = "_ZN12HomePageViewC1EP7QWidget",
@@ -145,7 +155,7 @@ NickelHook(
     .init  = &nhm_init,
     .info  = &NickelHome,
     .hook  = NickelHomeHook,
-    .dlsym = NULL,
+    .dlsym = nhm_my_books_symbols,
     .uninstall = &nhm_uninstall,
 )
 

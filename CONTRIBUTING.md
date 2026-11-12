@@ -16,7 +16,7 @@ Outputs are `build/qt5/KoboRoot.tgz` and `build/qt6/Kobo.tgz`, with `libnickelho
 
 The version comes from `git describe --tags --always --dirty`. Use `--version VERSION` for a local test stamp. CI checks out full history. Do not add private tool paths or development-platform references to source or documentation.
 
-The Makefile selects `src/nickelhome.cc` for Qt5 and `src/home-qt6.cc` plus `findbooks.cc` for Qt6. Both use the same config parser and keys. Qt6 builds embed the support files with NickelHook's resource installer; only `imageformats/libnickelhome.so` goes in `Kobo.tgz`. Neither target compiles an interactive Settings page.
+The Makefile selects `src/nickelhome.cc` for Qt5 and `src/home-qt6.cc` plus `findbooks.cc` for Qt6. Both compile `src/mybooks.cc` to keep the native My Books tile available with fewer than three covers, and use the same config parser and keys. Qt6 builds embed the support files with NickelHook's resource installer; only `imageformats/libnickelhome.so` goes in `Kobo.tgz`. Neither target compiles an interactive Settings page.
 
 Run `python3 -m unittest discover -s test -p 'test_*.py'` for host package checks. Every build also validates archive paths, ownership, permissions, ARM hard-float ABI, Qt dependencies and the absence of Settings hooks. These checks do not establish device compatibility.
 
@@ -27,6 +27,8 @@ Run `python3 -m unittest discover -s test -p 'test_*.py'` for host package check
 3. The mod's folder is `KOBOeReader/.adds/nickel-home/` (`doc`, `default`, `config`, and once it logs, `nickel-home.log`).
 
 Boot safety / recovery: NickelHook's failsafe (`failsafe_delay = 3`) uninstalls the mod if Nickel crashes within ~3 s of boot; power off within that window to recover a bad build. Deleting the whole `.adds/nickel-home/` folder (or creating an empty `uninstall-now` file in it) and rebooting also removes it.
+
+For My Books changes, check zero, one, two and three available books, including removal and reimport. Verify the tile hides when it has no books to show, returns when books are available, opens the library, and is never replaced by cached store promotions. Repeat with `nhm_enabled:0` to confirm stock behavior, and with the whole row hidden (plus My Books alone on Qt6) to confirm hiding still works.
 
 ## Logs & debugging
 

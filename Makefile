@@ -4,7 +4,7 @@ include $(patsubst %/,%,$(NICKELHOOK))/NickelHook.mk
 
 override PKGCONF  += Qt$(NH_QT_MAJOR)Widgets
 override LIBRARY  := src/libnickelhome.so
-override SOURCES  += src/config.c
+override SOURCES  += src/config.c src/mybooks.cc
 ifeq ($(NH_QT_MAJOR),6)
 override SOURCES += src/home-qt6.cc src/findbooks.cc src/install.c $(patsubst %/,%,$(NICKELHOOK))/resources.c
 else

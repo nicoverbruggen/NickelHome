@@ -2,6 +2,10 @@
 
 ## v0.7
 
+### Fixed
+
+- Keep My Books available with one or two books on Qt5 and Qt6. Hide the tile when it has no books to show. Store promotions no longer replace it. Explicit hide settings and `nhm_enabled:0` still take precedence.
+
 ### Added
 
 - **Initial experimental support for Kobo OS 6 and some Nickel-based Tolino devices**. This means separate Qt5 and experimental Qt6 builds from the same repository, using pinned kobuild SDK images. Use `Kobo.tgz` for firmware 5.18 and 6.x, alongside `KoboRoot.tgz` for firmware 4.x.

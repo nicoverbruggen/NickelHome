@@ -55,6 +55,9 @@
 #   <val>  0 or 1
 #
 # Qt6 keeps native content updates and reapplies the hide rules afterwards.
+# My Books remains available with one or two books and hides when it has no
+# books to show. Store promotions never replace it while the mod is enabled.
+# Explicit hide settings still take precedence.
 # Neither package adds an interactive Settings page. Edit config and reboot.
 # On Qt6 Kobo, the reading prompt opens My Books while the mod is enabled.
 #

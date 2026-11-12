@@ -23,6 +23,8 @@ NickelHome hides home-screen widgets by their internal name. The lookups are sco
 
 The two "dynamic slots" are the spots Kobo fills with a collection, author, wishlist, related reads, recommendations, or Top Picks / store tile ("Top 50", "Coming soon to audiobooks", ...). On firmware 4, hiding a slot prevents it from being filled. On firmware 5/6, Nickel still updates its content and NickelHome reapplies visibility after those updates.
 
+My Books stays available with one or two books to show. It hides when there are no books to show and returns when books are available. Store promotions cannot replace it while NickelHome is enabled. Explicitly hiding My Books or its entire row still takes precedence.
+
 ## Compatibility
 
 Use the package that matches your firmware:
