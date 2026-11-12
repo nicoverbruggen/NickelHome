@@ -2,31 +2,30 @@ name: Build
 
 on:
   push:
-    branches: [main, develop]
   pull_request:
   workflow_dispatch:
 
 jobs:
   build:
-    name: NickelHome
+    name: NickelHome / Qt${{ matrix.qt }}
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/pgaskin/nickeltc:1.0
-
+    strategy:
+      fail-fast: false
+      matrix:
+        qt: [5, 6]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0        # full history so `git describe` can stamp the version
-          submodules: true
-
-      - name: Build
-        run: make clean all strip koboroot
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: NickelHome
-          path: |
-            KoboRoot.tgz
-            src/libnickelhome.so
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        submodules: true
+        fetch-depth: 0
+    - name: Test package validation
+      run: python3 -m unittest discover -s test -p 'test_*.py'
+    - name: Build
+      run: sh tools/build.sh --qt "${{ matrix.qt }}"
+    - name: Upload
+      uses: actions/upload-artifact@v6
+      with:
+        name: NickelHome-qt${{ matrix.qt }}
+        path: build/qt${{ matrix.qt }}/*.tgz
+        if-no-files-found: error

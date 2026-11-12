@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Separate Qt5 and experimental Qt6 builds from the same repository, using pinned kobuild SDK images.
+- `Kobo.tgz` for firmware 5.18 and 6.x, alongside `KoboRoot.tgz` for firmware 4.x.
+- Qt6 Home rules, an independent My Books hide option and an optional Kobo-style Home layout on Tolino. The Kobo reading prompt opens My Books while the mod is enabled.
+- Package validation and a manual release workflow that attaches both packages to one draft release.
+
+### Changed
+
+- Qt6 creates support files on first startup without replacing existing configuration. Neither package includes an interactive Settings page; edit the config and reboot.
+
 ## v0.6
 
 ### Changed

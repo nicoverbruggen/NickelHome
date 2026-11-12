@@ -1,33 +1,40 @@
 name: Release
 
 on:
-  push:
-    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Existing release tag to build
+        required: true
 
 jobs:
   build:
     name: NickelHome
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/pgaskin/nickeltc:1.0
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
+          ref: refs/tags/${{ inputs.tag_name }}
           fetch-depth: 0        # full history so `git describe` stamps the tag as the version
           submodules: true
 
+      - name: Test package validation
+        run: python3 -m unittest discover -s test -p 'test_*.py'
       - name: Build
-        run: make clean all strip koboroot
+        env:
+          NHM_VERSION: ${{ inputs.tag_name }}
+        run: sh tools/build.sh
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
           name: NickelHome
+          if-no-files-found: error
           path: |
-            KoboRoot.tgz
-            src/libnickelhome.so
+            build/qt5/KoboRoot.tgz
+            build/qt6/Kobo.tgz
 
   release:
     name: Release
@@ -39,6 +46,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: refs/tags/${{ inputs.tag_name }}
 
       - name: Download artifact
         uses: actions/download-artifact@v6
@@ -46,8 +55,10 @@ jobs:
           name: NickelHome
 
       - name: Extract release notes from CHANGELOG.md
+        env:
+          RELEASE_TAG: ${{ inputs.tag_name }}
         run: |
-          awk -v tag="$GITHUB_REF_NAME" '
+          awk -v tag="$RELEASE_TAG" '
             $0 == "## " tag { found = 1; next }
             found && /^## /  { exit }
             found            { print }
@@ -56,7 +67,7 @@ jobs:
           # The CHANGELOG is the authoritative source for release notes: refuse to
           # publish a release whose section is missing or empty.
           if ! grep -q '[^[:space:]]' release-notes.md; then
-            echo "::error file=CHANGELOG.md::No '## $GITHUB_REF_NAME' section found in CHANGELOG.md — add one before tagging."
+            echo "::error file=CHANGELOG.md::No '## $RELEASE_TAG' section found in CHANGELOG.md — add one before tagging."
             exit 1
           fi
 
@@ -64,7 +75,7 @@ jobs:
             echo
             echo "---"
             echo
-            echo "**Install:** copy \`KoboRoot.tgz\` to the Kobo's hidden \`.kobo\` folder, eject, and reboot. Settings are in \`KOBOeReader/.adds/nickel-home/config\`; see the [README](https://github.com/$GITHUB_REPOSITORY/blob/$GITHUB_REF_NAME/README.md)."
+            echo "**Install:** use \`KoboRoot.tgz\` for firmware 4.x or \`Kobo.tgz\` for firmware 5.x/6.x. Copy the matching package to the Kobo's hidden \`.kobo\` folder, eject, and reboot. Settings are in \`KOBOeReader/.adds/nickel-home/config\`; see the [README](https://github.com/$GITHUB_REPOSITORY/blob/$RELEASE_TAG/README.md)."
             echo
             echo "**Uninstall:** delete the \`KOBOeReader/.adds/nickel-home/\` folder and reboot."
           } >> release-notes.md
@@ -72,7 +83,11 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          draft: false
-          name: NickelHome ${{ github.ref_name }}
+          tag_name: ${{ inputs.tag_name }}
+          draft: true
+          fail_on_unmatched_files: true
+          name: NickelHome ${{ inputs.tag_name }}
           body_path: release-notes.md
-          files: KoboRoot.tgz
+          files: |
+            qt5/KoboRoot.tgz
+            qt6/Kobo.tgz

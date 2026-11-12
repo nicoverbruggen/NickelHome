@@ -4,11 +4,9 @@
 # home view is constructed. It is built on NickelHook and is a sibling of
 # NickelMenu (https://pgaskin.net/NickelMenu).
 #
-# It should work on firmware 4.23.15505+ (the version which introduced the
-# current home screen layout). It is safe to try on newer firmware: if a widget
-# is not found on the running firmware, it is silently skipped and a warning is
-# written to syslog (view it with `logread`). A failsafe mechanism automatically
-# uninstalls the mod as a last resort if Nickel fails to start.
+# Use KoboRoot.tgz on firmware 4.23.15505+ in the 4.x family, or Kobo.tgz
+# on Qt6 firmware 5.18/6.x. Qt6 support is experimental. Never rename packages.
+# Missing widgets are left unchanged. The Qt6 plugin requires the Home hook.
 #
 # Configuration lives in a single file at:
 #
@@ -51,7 +49,14 @@
 #            hide_home_row3_enabled     - hides the footer row below "My Books" on the home
 #                                         screen, which often advertises features like the
 #                                         Kobo Store, Pocket, and more
+#            hide_home_row2col1_enabled - hides My Books independently (Qt6 only)
+#            tolino_home_books_enabled  - uses Kobo's book layout on Tolino (Qt6 only,
+#                                         default 0; does not change account state)
 #   <val>  0 or 1
+#
+# Qt6 keeps native content updates and reapplies the hide rules afterwards.
+# Neither package adds an interactive Settings page. Edit config and reboot.
+# On Qt6 Kobo, the reading prompt opens My Books while the mod is enabled.
 #
 # Example:
 #   hide_home_row1col2_enabled:1

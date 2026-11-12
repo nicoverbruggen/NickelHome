@@ -7,7 +7,7 @@
 It is built on [NickelHook](https://github.com/pgaskin/NickelHook) and is a standalone sibling of [NickelMenu](https://pgaskin.net/NickelMenu). The home-screen hiding feature started in my NickelMenu fork and is offered here as a standalone option.
 
 > [!IMPORTANT]
-> NickelHome needs the **standard** NickelMenu, not a fork. If you set your Kobo up with my **[NickelMenu fork](https://github.com/nicoverbruggen/NickelMenu)** (or with an older **KoboPatch Web UI** that bundled it), that fork also hooks the home screen, and the conflict stops NickelHome's hiding from working (its hooks silently never fire). Install the standard [NickelMenu](https://pgaskin.net/NickelMenu) over the fork first (its plugin has the same filename, so it replaces it), reboot, and NickelHome will then work. This does **not** apply to the current KoboPatch Web UI, which installs standard NickelMenu together with NickelHome.
+> Older NickelMenu forks also hid Home widgets and can conflict with NickelHome. Use standard NickelMenu on firmware 4, or the current Qt6 NickelMenu fork on firmware 5/6. Do not install two mods that change the same Home widgets.
 
 ## What it does
 
@@ -17,31 +17,39 @@ NickelHome hides home-screen widgets by their internal name. The lookups are sco
 |------------------------------|---------------------------------------------------------------------------|
 | `hide_home_row1col2_enabled` | The dynamic slot next to your current read.                                |
 | `hide_home_row2col2_enabled` | The dynamic slot next to "My Books".                                       |
+| `hide_home_row2col1_enabled` | My Books, without hiding the tile beside it (Qt6 only). |
 | `hide_home_row2_enabled`     | The entire second row, including "My Books" and the content next to it.   |
 | `hide_home_row3_enabled`     | The entire third row, which usually displays notices and CTAs.            |
 
-The two "dynamic slots" are the spots Kobo fills with a collection, author, wishlist, related reads, recommendations, or Top Picks / store tile ("Top 50", "Coming soon to audiobooks", ...). Hiding a slot also stops it from being filled in the first place, so content arriving late (e.g. a Top Picks tile refreshed by a store sync) can't pop back up in a slot you've hidden.
+The two "dynamic slots" are the spots Kobo fills with a collection, author, wishlist, related reads, recommendations, or Top Picks / store tile ("Top 50", "Coming soon to audiobooks", ...). On firmware 4, hiding a slot prevents it from being filled. On firmware 5/6, Nickel still updates its content and NickelHome reapplies visibility after those updates.
 
 ## Compatibility
 
-This needs firmware **4.23.15505 or newer** (the version that introduced the current home-screen layout), and works on the Kobo 4.x firmware line only. If a widget doesn't exist on your firmware, it's skipped and a note is written to the log. Support for the 5.x firmware line (a completely different system) is not planned.
+Use the package that matches your firmware:
+
+| Firmware | Qt | Package |
+| --- | --- | --- |
+| Kobo 4.23.15505 or newer on the 4.x line | Qt5 | `KoboRoot.tgz` |
+| Kobo 5.18 and 6.x, Tolino 5.18 | Qt6 | `Kobo.tgz` |
+
+Qt6 support is experimental. These packages contain different binaries and archive paths; do not rename them. Missing widgets are left unchanged. A missing required Home hook prevents the Qt6 plugin from loading.
 
 ## Is it safe?
 
-- NickelHome only hides home-screen widgets; nothing else on your device is changed.
+- NickelHome changes Home widgets and, on Qt6, the reading prompt shortcut. It does not change your book files.
 - If a widget can't be found on your firmware, it's simply left alone.
-- If Nickel ever fails to start, a failsafe automatically uninstalls the mod, so it can't be the cause of a boot loop. You can also trigger it manually by powering the Kobo off right after it starts booting.
+- NickelHook has a startup failsafe. It does not guarantee recovery from every failure; back up important data before installing experimental mods.
 - It removes itself cleanly (see below), leaving your Kobo as it was.
 
 ## Installation
 
-Download `KoboRoot.tgz` from the [latest release](../../releases/latest), copy it into the hidden `.kobo` folder on your Kobo, then eject. It installs on the next reboot.
+Download the matching package from the [latest release](../../releases/latest), copy it into the hidden `.kobo` folder on your Kobo, then eject. It installs on the next reboot.
 
 ## Configuration
 
 **You don't need to configure anything.** Out of the box, NickelHome applies a "minimal" home screen that hides everything except your current read and your "My Books" widget. Just install it and reboot.
 
-The defaults ship as a template at `KOBOeReader/.adds/nickel-home/default` (refreshed on every update). On first boot, if no config exists yet, NickelHome copies that template to `KOBOeReader/.adds/nickel-home/config`:
+The defaults live at `KOBOeReader/.adds/nickel-home/default`. The Qt5 package refreshes this template on installation. The Qt6 library creates missing support files on first startup and preserves existing files on later updates. If no config exists yet, NickelHome copies the template to `KOBOeReader/.adds/nickel-home/config`:
 
 ```
 # The recommendation column next to your current read.
@@ -58,6 +66,12 @@ To change what's hidden, edit `config`: set an option to `0` to keep that elemen
 
 Each line is `key:val`, with `#` for comments. Spaces around fields are ignored, and if an option is declared more than once, the first declaration wins. The full documentation is installed to `.adds/nickel-home/doc`. **A reboot is required for changes to take effect.**
 
+There is no interactive Settings page in either package. Edit the config file and reboot. Settings integration with NickelModManager is planned separately.
+
+On Qt6, `hide_home_row2col1_enabled:1` hides My Books independently. `tolino_home_books_enabled:1` enables Kobo's current-read and My Books layout on Tolino; it is off by default. On Kobo, the Qt6 reading prompt opens My Books while NickelHome is enabled.
+
+Qt6 keeps an initialization receipt at `.adds/.nickel-home.initialized`. Leave it in place while the mod is installed. Deleting the keep-installed `uninstall` file still requests removal; an ordinary reboot does not recreate it.
+
 ## Reporting a problem
 
 If something doesn't look right, NickelHome keeps a small log file that makes it much easier to help you. Connect your Kobo to a computer over USB and look for:
@@ -70,7 +84,7 @@ Attach that file when you report an issue. It records which version of the mod y
 
 ## Building
 
-Needs podman or Docker; see [CONTRIBUTING.md](CONTRIBUTING.md) for the full instructions. In short: clone with `--recursive` and run `./build.sh` to produce `KoboRoot.tgz`.
+Needs podman or Docker; see [CONTRIBUTING.md](CONTRIBUTING.md) for the full instructions. In short: clone with `--recursive` and run `./build.sh` to produce `build/qt5/KoboRoot.tgz` and `build/qt6/Kobo.tgz`.
 
 ## Uninstalling
 

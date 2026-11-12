@@ -4,25 +4,29 @@ Technical guide for building, testing, and changing the mod. These mods follow t
 
 ## Building
 
-Needs [podman](https://podman.io) (or Docker); the ARM cross-toolchain runs in a container, so your host never needs it:
+Build both targets with the public [kobuild](https://github.com/nicoverbruggen/kobuild) SDK images. Docker is the default; set `CONTAINER_ENGINE=podman` to use Podman. The build script pins the Qt5 and Qt6 images from v0.5.3 by digest.
 
 ```sh
-git clone --recursive https://github.com/nicoverbruggen/NickelHome   # --recursive: NickelHook is a submodule
+git clone --recursive https://github.com/nicoverbruggen/NickelHome
 cd NickelHome
-./build.sh                                                           # make clean all strip koboroot in ghcr.io/pgaskin/nickeltc:1.0
+./build.sh
 ```
 
-This produces `KoboRoot.tgz` at the repo root. `./build.sh <targets>` passes other make targets through; `NICKELTC_IMAGE` overrides the toolchain image. You can also build straight on the host with `make CROSS_COMPILE=/path/to/nickeltc/bin/arm-nickel-linux-gnueabihf- all koboroot`.
+Outputs are `build/qt5/KoboRoot.tgz` and `build/qt6/Kobo.tgz`, with `libnickelhome.so` beside each package. Use `./build.sh --qt 5` or `--qt 6` for one target. `JOBS` controls compiler parallelism. Each target builds a fresh source copy to avoid mixing Qt objects.
 
-Version stamping: NickelHook.mk bakes `git describe --tags --always --dirty` into `NH_VERSION`: the git tag when you're on one, otherwise a commit hash. `build.sh` keeps `.git` out of what it sends the container, so it reads the version on the host and passes it to make. A local build is stamped like a CI one, with `-dirty` when the tree has uncommitted changes. Outside a checkout there is no version and the logger falls back to `dev`. CI (checkout with `fetch-depth: 0`) produces the authoritative artifacts.
+The version comes from `git describe --tags --always --dirty`. Use `--version VERSION` for a local test stamp. CI checks out full history. Do not add private tool paths or development-platform references to source or documentation.
+
+The Makefile selects `src/nickelhome.cc` for Qt5 and `src/home-qt6.cc` plus `findbooks.cc` for Qt6. Both use the same config parser and keys. Qt6 builds embed the support files with NickelHook's resource installer; only `imageformats/libnickelhome.so` goes in `Kobo.tgz`. Neither target compiles an interactive Settings page.
+
+Run `python3 -m unittest discover -s test -p 'test_*.py'` for host package checks. Every build also validates archive paths, ownership, permissions, ARM hard-float ABI, Qt dependencies and the absence of Settings hooks. These checks do not establish device compatibility.
 
 ## Testing on a device
 
-1. Copy `KoboRoot.tgz` into the Kobo's hidden `.kobo` folder over USB.
+1. Copy the matching `KoboRoot.tgz` (Qt5) or `Kobo.tgz` (Qt6) into the Kobo's hidden `.kobo` folder over USB.
 2. Eject and reboot; the firmware installs it and deletes the tgz.
 3. The mod's folder is `KOBOeReader/.adds/nickel-home/` (`doc`, `default`, `config`, and once it logs, `nickel-home.log`).
 
-Boot safety / recovery: NickelHook's failsafe (`failsafe_delay = 3`) uninstalls the mod if Nickel crashes within ~3 s of boot; power off within that window to recover a bad build. Deleting the whole `.adds/nickel-home/` folder (or creating an empty `uninstall` file in it) and rebooting also removes it.
+Boot safety / recovery: NickelHook's failsafe (`failsafe_delay = 3`) uninstalls the mod if Nickel crashes within ~3 s of boot; power off within that window to recover a bad build. Deleting the whole `.adds/nickel-home/` folder (or creating an empty `uninstall-now` file in it) and rebooting also removes it.
 
 ## Logs & debugging
 
@@ -30,7 +34,7 @@ The mod logs to `KOBOeReader/.adds/nickel-home/nickel-home.log` (and to syslog v
 
 ## Firmware compatibility
 
-The hooked `libnickel` symbol (`HomePageView::HomePageView`) carries a `//libnickel <first> <last|*> <symbol>` annotation. The `test/syms` checker (CI job `syms`, also runnable locally with Go: `cd test/syms && go build -o ../../test.syms . && cd ../src && ../test.syms`) verifies it against ~70 real firmware dumps (4.6 → 4.45). The current home-screen layout was introduced in firmware 4.23.15505, which is the effective floor. The hook is `.optional`: on firmware where the symbol is missing, the mod loads inert instead of failing. Targets Kobo 4.x only; 5.x (Qt 6 / Chromium) is out of scope and the mod stays inert there.
+The hooked `libnickel` symbol (`HomePageView::HomePageView`) carries a `//libnickel <first> <last|*> <symbol>` annotation. The `test/syms` checker (CI job `syms`, also runnable locally with Go: `cd test/syms && go build -o ../../test.syms . && cd ../src && ../test.syms`) verifies it against ~70 real firmware dumps (4.6 → 4.45). The current home-screen layout was introduced in firmware 4.23.15505, which is the effective floor. The hook is `.optional`: on firmware where the symbol is missing, the mod loads inert instead of failing. That checker covers Qt5 only. Qt6 uses a required Home constructor hook and optional content/navigation hooks; test the package on its intended firmware. The config parser is read-only after startup, so changes require a reboot.
 
 ## Pull requests
 
@@ -40,4 +44,4 @@ The hooked `libnickel` symbol (`HomePageView::HomePageView`) carries a `//libnic
 
 ## Releases (maintainers)
 
-Check that `CHANGELOG.md` has a complete `## vX.Y` section matching the tag name, tag the commit `vX.Y`, and push the tag. CI builds, extracts that section as the release notes, attaches `KoboRoot.tgz`, and fails if the CHANGELOG section is missing.
+Add release notes to `CHANGELOG.md` under the intended tag name before tagging. The manual Release workflow builds an existing tag, validates both packages and attaches them to one draft release. It refuses a missing or empty changelog section. Review and test both packages before publishing. Building locally does not publish a release.
